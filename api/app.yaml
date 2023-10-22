@@ -1,0 +1,35 @@
+runtime: nodejs20
+env: standard
+service: default
+
+entrypoint: NODE_ENV=production node index.js
+
+automatic_scaling:
+  min_instances: 0
+  max_instances: 1
+
+env_variables:
+    NODE_ENV: production
+    DB_USER: postgres
+    DB_PASS: <REDACTED>
+    REDIS_PASS: <REDACTED>
+
+instance_class: F1
+
+handlers:
+  - url: /api/.*
+    script: auto
+  - url: /static
+    static_dir: client/build/static
+    http_headers:
+      Access-Control-Allow-Origin: "*"
+  - url: /(.*\.(json|ico|js))$
+    static_files: client/build/\1
+    upload: client/build/.*\.(json|ico|js)$
+    http_headers:
+      Access-Control-Allow-Origin: "*"
+  - url: .*
+    static_files: client/build/index.html
+    upload: client/build/index.html
+    http_headers:
+      Access-Control-Allow-Origin: "*"
